@@ -1,1 +1,2 @@
-p('king')('aura')
+
+APP_NAME     = 'BlackJack'

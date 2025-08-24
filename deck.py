@@ -6,7 +6,6 @@ SHAPES = ['Spade','Heart','Club','Diamond']
 class Deck:
   def __init__(self):
     self.deck  = []
-    self.reset()
   
   def shuffle(self):
     size = len(self.deck)
@@ -28,12 +27,16 @@ class Deck:
       'card'      : card,
       'card_name' : CARDS[card],
       'shape_name': SHAPES[shape],
+      'value'     : min(card + 1, 10),
       'name'      : f'{CARDS[card]} of {SHAPES[shape]}s'
     }
     return card_data
 
   def add_card(self, shape:int = 0, card:int = 0):
-    self.deck.append((shape, card))
+    self.deck.append((
+      min( abs(round(shape)) , len(SHAPES) ), 
+      min( abs(round(card))  , len(CARDS)  )
+    ))
 
   def reset(self):
     self.deck = []
