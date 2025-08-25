@@ -16,22 +16,21 @@ class App:
     self.clicks    = [-5,-5]
     #
     self.Gui  = gui.UIObj('Interface_Manager')
+
     # --- test
-    
-    SCALE = 20
-    SIZE  = 30
+    SCALE = 100
+    SIZE  = 5
     for x in range(SCALE):
       x1 = (x - SCALE / 2) * SIZE
       for y in range(SCALE):
         y1 = (y - SCALE / 2) * SIZE
-        b = self.Gui.add(None,gui.Button)
-        a = b.add(None, gui.Frame)
+        b = self.Gui.add(None,  gui.Button)
         #
-        a.color    = (x / SCALE * 255, 255, y / SCALE * 255, )
-        a.size     = (SIZE,SIZE)
+        b.color    = (x / SCALE * 255, 255, y / SCALE * 255, )
+        b.size     = (SIZE,SIZE)
         b.position = (HALF_X + x1, HALF_Y + y1)
 
-    # ---- test
+    # --- test
     pygame.display.set_caption(APP_NAME)
     #
     self.deck = deck.Deck()

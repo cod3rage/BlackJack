@@ -37,7 +37,7 @@ class UIObj():
     hit = False
     for item in self.boundboxes.values():
       if hasattr(item, 'visible') and getattr(item, 'visible'):
-        if (item.render_pos[1] <= pos[1] <= item.render_pos[1] + item.size[1] * 3) and (item.render_pos[0] <= pos[0] <= item.render_pos[0] + item.size[0] * 3):
+        if (item.render_pos[1] <= pos[1] <= item.render_pos[1] + item.size[1]) and (item.render_pos[0] <= pos[0] <= item.render_pos[0] + item.size[0]):
           item.input(pos, clicked)
           hit = True
     return hit
@@ -88,16 +88,21 @@ class Frame(UIObj):
     
 
 # ---------------------------------
-class Button(UIObj):
+class Button(Frame):
   def __init__(self, name='UIOBJECT', parent=None):
     super().__init__(name, parent)
+    #
     self.hitbox = True
     unc = self.ancestor()
     self.id = len(unc.boundboxes) + 1
     unc.boundboxes[self.id]  = self
 
   def input(self, pos, clicked):
-    print(self.name)
+    if clicked:
+      self.clicked()
+  
+  def clicked(self):
+    self.color = (255,0,0)
     
     
     

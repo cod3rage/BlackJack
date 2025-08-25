@@ -6,7 +6,7 @@ APP_NAME    = 'BlackJack'
 
 # camera settings
 SCROLL_AMT       = 67
-SHAKE_STRENGTH   = 0
+SHAKE_STRENGTH   = 1.6
 
 
 # binding
