@@ -44,3 +44,6 @@ class Deck:
       for card in range(len(CARDS)):
         self.add_card(shape, card)
     self.shuffle()
+  
+
+

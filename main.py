@@ -15,17 +15,30 @@ class App:
     self.mouse_pos = (0,0)
     self.clicks    = [-5,-5]
     #
-    self.Gui = gui.UIObj('Interface_Manager')
-    #test
-    b = self.Gui.add('hello',gui.Frame)
-    b.color = 'red'
-    b.size  = (20,20)
-    b.position = (HALF_X,HALF_Y)
-    #
+    self.Gui  = gui.UIObj('Interface_Manager')
+    # --- test
+    
+    SCALE = 20
+    SIZE  = 30
+    for x in range(SCALE):
+      x1 = (x - SCALE / 2) * SIZE
+      for y in range(SCALE):
+        y1 = (y - SCALE / 2) * SIZE
+        b = self.Gui.add(None,gui.Button)
+        a = b.add(None, gui.Frame)
+        #
+        a.color    = (x / SCALE * 255, 255, y / SCALE * 255, )
+        a.size     = (SIZE,SIZE)
+        b.position = (HALF_X + x1, HALF_Y + y1)
+
+    # ---- test
     pygame.display.set_caption(APP_NAME)
     #
     self.deck = deck.Deck()
+    self.hand = deck.Deck()
+    self.deck.reset()
 
+  #
   def initialize(self):
     pygame.init()
     pygame.font.init()
@@ -44,22 +57,18 @@ class App:
   # Main Functions #
 
   def keybinds(self):
+    clicked = False
+    #
     for event in pygame.event.get():
       if event.type == pygame.QUIT:
         return True
-      if event.type == pygame.MOUSEBUTTONUP:
-        if event.button == 1:
-          if self.LocalTime - self.clicks[0] <= DOUBLE_CLICK:
-            print('lmb x2')
-          self.clicks[0] = self.LocalTime
-        if event.button == 3:
-          if self.LocalTime - self.clicks[1] <= DOUBLE_CLICK:
-            print('rmb x2')
-          self.clicks[1] = self.LocalTime
-
-    
+      if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+        clicked = True
+    #
     self.mouse_pos = pygame.mouse.get_pos()
-    self.Gui.input()
+    if not self.Gui.input(self.mouse_pos, clicked):
+      # game click
+      pass
 
   # run 2 #
   def update(self):
@@ -79,6 +88,7 @@ class App:
   def render(self):
     self.screen.fill((0,0,0))
     self.Gui.render(self.screen)
+    pygame.draw.circle(self.screen, (255,0,0), (HALF_X, HALF_Y), 2)
   
   # quit func #
   def exit(self):
