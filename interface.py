@@ -146,20 +146,19 @@ class TextLabel(UIObj):
     self()
 
   def __call__(self):
-    self.size  = self.font.size(self.text)
     self.final = self.font.render(self.text, self.antialias, self.color, self.background)
+    self.size  = self.font.size(self.text)
+    
+    
 
   def render(self, surface:py.surface):
-    surface.blit(self.final,self.render_pos)
+    surface.blit(self.final, self.render_pos)
     super().render(surface)
   
   def update(self, tick=0, localTime=0, render_pos=(0, 0),*other):
+    self.loop('update', tick, localTime, self.render_pos, *other) 
 
     self.render_pos = (
-      render_pos[0] + self.position[0] - self.size[0] / 2 if self.centerX else 0,
-      render_pos[1] + self.position[1] - self.size[1] / 2 if self.centerX else 0
+      render_pos[0] + self.position[0] - (self.size[0] if self.centerX else 0) / 2,
+      render_pos[1] + self.position[1] - (self.size[1] if self.centerY else 0) / 2
     )
-
-    self.loop('update', tick, localTime, self.render_pos)
-
-    super().update(tick, localTime, render_pos, *other) 

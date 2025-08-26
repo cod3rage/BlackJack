@@ -32,12 +32,21 @@ class App:
         b.size     = (SIZE,SIZE)
         b.position = (HALF_X + x1, HALF_Y + y1)
 
-    d = self.Gui.add(gui.TextLabel, None, 24)
+    d = self.Gui.add(gui.TextLabel, None, 26)
     d.text      = 'Test'
     d.color     = (0,0,0)
     d.position  = (HALF_X, HALF_Y)
-    d.centerX   = True
+    d.centerX   = False
+    d.centerY   = False
     d()
+
+    d2 = self.Gui.add(gui.TextLabel, None, 26)
+    d2.text      = 'Test'
+    d2.color     = (255,0,0)
+    d2.position  = (HALF_X, HALF_Y - 20)
+    d2.centerX   = True
+    d2.centerY   = True
+    d2()
 
     # --- test
 

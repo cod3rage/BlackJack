@@ -4,7 +4,6 @@ from constants import *
 def linear(start, end, time):
     return start + (end - start) * time
 
-
 # ---
 def shake(x, x1, hx, f, s, t):
     return round(x1+((x-hx)/hx*s-x1)*t+(random()-0.5)*f, 2)
