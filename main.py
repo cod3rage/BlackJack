@@ -20,6 +20,7 @@ class App:
     self.Gui  = gui.UIObj('Interface_Manager')
 
     # --- test
+
     SCALE = 20
     SIZE  = 12
     for x in range(SCALE):
@@ -33,28 +34,21 @@ class App:
         b.position = (HALF_X + x1, HALF_Y + y1)
 
     d = self.Gui.add(gui.TextLabel, None, 26)
-    d.text      = 'Test'
+    d.text      = 'This text will stay centered'
     d.color     = (0,0,0)
     d.position  = (HALF_X, HALF_Y)
-    d.centerX   = False
-    d.centerY   = False
+    d.centerX   = True
+    d.centerY   = True
+    d.antialias = 1
     d()
-
-    d2 = self.Gui.add(gui.TextLabel, None, 26)
-    d2.text      = 'Test'
-    d2.color     = (255,0,0)
-    d2.position  = (HALF_X, HALF_Y - 20)
-    d2.centerX   = True
-    d2.centerY   = True
-    d2()
 
     # --- test
 
     pygame.display.set_caption(APP_NAME)
     #
-    self.deck = deck.Deck()
+    self.dealer = deck.Dealer()
     self.hand = deck.Deck()
-    self.deck.reset()
+    self.dealer.reset()
 
   #
   def initialize(self):

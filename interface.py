@@ -138,18 +138,17 @@ class TextLabel(UIObj):
     self.color      = (255,255,255)
     self.font       = py.font.Font(self.FileArg, self.txt_size)
     self.text       = ''
-    self.antialias  = 0
+    self.antialias  = 1
     self.background = None
 
-    self.size  = None
     self.final = None
     self()
 
-  def __call__(self):
+  def __call__(self, *args):
+    if args:
+      return super().__call__(args)
     self.final = self.font.render(self.text, self.antialias, self.color, self.background)
     self.size  = self.font.size(self.text)
-    
-    
 
   def render(self, surface:py.surface):
     surface.blit(self.final, self.render_pos)
@@ -162,3 +161,14 @@ class TextLabel(UIObj):
       render_pos[0] + self.position[0] - (self.size[0] if self.centerX else 0) / 2,
       render_pos[1] + self.position[1] - (self.size[1] if self.centerY else 0) / 2
     )
+
+
+# ---------------------------------
+class ImageLabel(UIObj):
+  def __init__(self, name=None, parent=None, file_Arg = ''):
+    super().__init__(name, parent)
+    self.surface = py.image.load(file_Arg)
+
+  def render(self, surface:py.surface):
+    surface.blit(self.surface, self.render_pos)
+    super().render(surface)

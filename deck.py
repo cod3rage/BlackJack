@@ -1,9 +1,26 @@
 from random import randint
+from constants import *
 
-CARDS  = ['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Jack','Queen','King']
-SHAPES = ['Spade','Heart','Club','Diamond']
+def card_vector(shape = 0, card = 0):
+  crd, shp = CARDS[card], SHAPES[shape]
+  return {
+    'shape'     : shape,
+    'card'      : card,
+    'card_name' : crd,
+    'shape_name': shp,
+    'value'     : min(card + 1, 10),
+    'name'      : f'{crd} of {shp}s',
+    'file'      : f'{crd.lower()}_of_{shp.lower()}s.png'
+  }
 
-class Deck:
+def compare(main:int, opp:int) -> GAME_RESULTS:
+  if main == opp or (main > PLAY_TO and opp > PLAY_TO):
+    return GAME_RESULTS.TIE
+  elif (main > opp or opp > PLAY_TO) and main <= PLAY_TO:
+    return GAME_RESULTS.WIN
+  return GAME_RESULTS.LOSE
+
+class Dealer:
   def __init__(self):
     self.deck  = []
   
@@ -22,28 +39,52 @@ class Deck:
     #
     (shape, card) = self.deck[-1]
     self.deck.pop(-1)
-    card_data = {
-      'shape'     : shape,
-      'card'      : card,
-      'card_name' : CARDS[card],
-      'shape_name': SHAPES[shape],
-      'value'     : min(card + 1, 10),
-      'name'      : f'{CARDS[card]} of {SHAPES[shape]}s'
-    }
-    return card_data
+    
+    return card_vector(shape, card)
 
   def add_card(self, shape:int = 0, card:int = 0):
     self.deck.append((
-      min( abs(round(shape)) , len(SHAPES) ), 
-      min( abs(round(card))  , len(CARDS)  )
+      min( abs(round(shape)) , SHAPE_LEN), 
+      min( abs(round(card))  , CARD_LEN)
     ))
 
   def reset(self):
     self.deck = []
-    for shape in range(len(SHAPES)):
-      for card in range(len(CARDS)):
+    for shape in range(SHAPE_LEN):
+      for card in range(CARD_LEN):
         self.add_card(shape, card)
     self.shuffle()
-  
 
+class Deck:
+  def __init__(self):
+    self.deck = []
+
+  def clear(self):
+    self.deck = []
+  
+  def request_draw(self, dealer:Dealer):
+    v1, _ = self.value()
+    if v1 < PLAY_TO:
+      card = dealer.draw()
+      if card:
+        self.deck.append(card)
+  
+  def evaluate(self):
+    v1, v2 = self.value()
+    if v1 == PLAY_TO or v2 == PLAY_TO:
+      return PLAY_TO
+    elif v2 < PLAY_TO:
+      return v2 
+    return v1
+
+  def value(self):
+    val, i_val = 0, 0
+    for card in self.deck:
+      Cv = card['value']
+      if Cv == 1:
+        val   += 1
+        i_val += 11
+        continue
+      val, i_val = val+Cv, i_val+Cv 
+    return val, i_val # possiblities
 
