@@ -1,4 +1,4 @@
-from interpolation import *
+from services.interpolation import *
 
 class TweenSys:
   anims = []
@@ -50,5 +50,8 @@ class TweenSys:
           if type(start) == tuple:
             final = tuple(final)
           setattr(obj, prop, final)
+        obj()
 
     self.anims = [item for index , item in enumerate(self.anims) if not (index in cache)]
+  #
+

@@ -1,5 +1,5 @@
 from random import randint
-from constants import *
+from configs.constants import *
 
 def card_vector(shape = 0, card = 0):
   crd, shp = CARDS[card], SHAPES[shape]
@@ -14,9 +14,9 @@ def card_vector(shape = 0, card = 0):
   }
 
 def compare(main:int, opp:int) -> GAME_RESULTS:
-  if main == opp or (main > PLAY_TO and opp > PLAY_TO):
+  if main == opp or (main > DEFAULTS.PLAY_TO and opp > DEFAULTS.PLAY_TO):
     return GAME_RESULTS.TIE
-  elif (main > opp or opp > PLAY_TO) and main <= PLAY_TO:
+  elif (main > opp or opp > DEFAULTS.PLAY_TO) and main <= DEFAULTS.PLAY_TO:
     return GAME_RESULTS.WIN
   return GAME_RESULTS.LOSE
 
@@ -64,16 +64,16 @@ class Deck:
   
   def request_draw(self, dealer:Dealer):
     v1, _ = self.value()
-    if v1 < PLAY_TO:
+    if v1 < DEFAULTS.PLAY_TO:
       card = dealer.draw()
       if card:
         self.deck.append(card)
   
   def evaluate(self):
     v1, v2 = self.value()
-    if v1 == PLAY_TO or v2 == PLAY_TO:
-      return PLAY_TO
-    elif v2 < PLAY_TO:
+    if v1 == DEFAULTS.PLAY_TO or v2 == DEFAULTS.PLAY_TO:
+      return DEFAULTS.PLAY_TO
+    elif v2 < DEFAULTS.PLAY_TO:
       return v2 
     return v1
 

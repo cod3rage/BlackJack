@@ -1,95 +1,75 @@
 import pygame
-import deck, interface as gui, interpolation as inter
-from constants import *
+from services import interpolation, tween, game_manager
+from configs import game_ui, bots
+from configs.constants import *
 
 class App:
   def __init__(self):
     self.initialize()  
-    self.Running   = True
+    self.Running   = False
     self.screen    = pygame.display.set_mode(SCREEN_SIZE)
+    pygame.display.set_caption(APP_NAME)
+
     # time
     self.clock      = pygame.time.Clock()
     self.LocalTime  = 0
     self.deltaTime  = 0
     self.tick_cycle = 0
-    # global offset
+
+    # globals
     self.scroll    = (0,0)
     self.mouse_pos = (0,0)
-    self.clicks    = [-5,-5]
-    #
-    self.Gui  = gui.UIObj('Interface_Manager')
 
-    # --- test
+    #pack managers
+    self.manager = game_manager.Manager()
+    self.Gui     = game_ui.GuiManager()
+    self.tween   = tween.TweenSys()
 
-    SCALE = 20
-    SIZE  = 12
-    for x in range(SCALE):
-      x1 = (x - SCALE / 2) * SIZE
-      for y in range(SCALE):
-        y1 = (y - SCALE / 2) * SIZE
-        b = self.Gui.add(gui.Button)
-        #
-        b.color    = (x / SCALE * 255, 255, y / SCALE * 255, )
-        b.size     = (SIZE,SIZE)
-        b.position = (HALF_X + x1, HALF_Y + y1)
 
-    d = self.Gui.add(gui.TextLabel, None, 26)
-    d.text      = 'This text will stay centered'
-    d.color     = (0,0,0)
-    d.position  = (HALF_X, HALF_Y)
-    d.centerX   = True
-    d.centerY   = True
-    d.antialias = 1
-    d()
-
-    # --- test
-
-    pygame.display.set_caption(APP_NAME)
-    #
-    self.dealer = deck.Dealer()
-    self.hand = deck.Deck()
-    self.dealer.reset()
-
-  #
   def initialize(self):
     pygame.init()
     pygame.font.init()
 
   def run(self):
+    self.Running = True
     while self.Running:
-      if self.keybinds():
+      if self.binds():
         self.exit()
         break
       self.update()
       self.render()
-      pygame.display.update()
+      pygame.display.flip()
       self.deltaTime  =  self.clock.tick(FRAME_RATE) / 1000
       self.LocalTime  += self.deltaTime
       self.tick_cycle += 1
 
   # Main Functions #
 
-  def keybinds(self):
-    clicked = False
+  def binds(self):
+    clicked, events = False, pygame.event.get()
     #
-    for event in pygame.event.get():
+    for event in events:
       if event.type == pygame.QUIT:
         return True
       if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
         clicked = True
     #
     self.mouse_pos = pygame.mouse.get_pos()
-    if not self.Gui.input(self.mouse_pos, clicked, self.tick_cycle, self.LocalTime):
-      # game click
-      pass
+    self.Gui.input(self.mouse_pos, clicked, self.tick_cycle)
+    if (not self.Gui.BindYeild):
+      self.manager.binds(events, self.LocalTime, self.mouse_pos, clicked)
 
   # run 2 #
   def update(self):
-    self.scroll = inter.cam_shake(
+    self.manager.update(self.deltaTime, self.LocalTime)
+    #
+    self.scroll = interpolation.cam_shake(
       *self.mouse_pos, 
       *self.scroll,
       self.deltaTime
     )
+    # -
+    self.tween.update(self.deltaTime)
     # -
     self.Gui.update( 
       self.deltaTime, 

@@ -1,6 +1,9 @@
 import pygame as py
+from services import tween
 
 class UIObj():
+  boundboxes = {}
+  anim_sys = tween.TweenSys
   def __init__(self, name = 'UIOBJECT', parent = None):
     self.children   = {}
     self.name       = name
@@ -11,7 +14,6 @@ class UIObj():
     self.hitbox     = False
     self.surface    = None
     self.parent     = parent
-    self.boundboxes = {}
 
   #-------------
   def __call__(self, child = ''):
@@ -94,13 +96,11 @@ class Button(Frame):
     #
     self.hovering = 0
     self.hitbox   = True
+    #
+    self.id = len(self.boundboxes) + 1
+    self.boundboxes[self.id] = self
 
-    unc = self.ancestor()
-
-    self.id = len(unc.boundboxes) + 1
-    unc.boundboxes[self.id]  = self
-
-  def input(self, pos, clicked, cycle = 0, localTime = 0):
+  def input(self, pos, clicked, cycle = 0):
     if self.hovering + 1 < cycle:
       self.hover()
     self.hovering = cycle
@@ -111,7 +111,7 @@ class Button(Frame):
     self.color = (255,0,0)
 
   def hover(self):
-    self.color = (0,0,255)
+    self.color = (0,0,0)
   
   def unhover(self):
     self.color = (0,255,0)
