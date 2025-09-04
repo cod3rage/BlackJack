@@ -1,8 +1,10 @@
 from random import randint
-from configs.constants import *
+from configs import constants as C
+
+
 
 def card_vector(shape = 0, card = 0):
-  crd, shp = CARDS[card], SHAPES[shape]
+  crd, shp = C.CARDS[card], C.SHAPES[shape]
   return {
     'shape'     : shape,
     'card'      : card,
@@ -13,12 +15,7 @@ def card_vector(shape = 0, card = 0):
     'file'      : f'{crd.lower()}_of_{shp.lower()}s.png'
   }
 
-def compare(main:int, opp:int) -> GAME_RESULTS:
-  if main == opp or (main > DEFAULTS.PLAY_TO and opp > DEFAULTS.PLAY_TO):
-    return GAME_RESULTS.TIE
-  elif (main > opp or opp > DEFAULTS.PLAY_TO) and main <= DEFAULTS.PLAY_TO:
-    return GAME_RESULTS.WIN
-  return GAME_RESULTS.LOSE
+
 
 class Dealer:
   def __init__(self):
@@ -44,16 +41,24 @@ class Dealer:
 
   def add_card(self, shape:int = 0, card:int = 0):
     self.deck.append((
-      min( abs(round(shape)) , SHAPE_LEN), 
-      min( abs(round(card))  , CARD_LEN)
+      min( abs(round(shape)) , C.SHAPE_LEN), 
+      min( abs(round(card))  , C.CARD_LEN)
     ))
 
   def reset(self):
     self.deck = []
-    for shape in range(SHAPE_LEN):
-      for card in range(CARD_LEN):
+    print(C.CARD_LEN)
+    for shape in range(C.SHAPE_LEN):
+      for card in range(C.CARD_LEN):
         self.add_card(shape, card)
     self.shuffle()
+  
+  def compare(self, main:int, opp:int):
+    if main == opp or (main > C.DEFAULTS.PLAY_TO and opp > C.DEFAULTS.PLAY_TO):
+      return C.GAME_RESULTS.TIE
+    elif (main > opp or opp > C.DEFAULTS.PLAY_TO) and main <= C.DEFAULTS.PLAY_TO:
+      return C.GAME_RESULTS.WIN
+    return C.GAME_RESULTS.LOSE
 
 class Deck:
   def __init__(self):
@@ -62,24 +67,29 @@ class Deck:
   def clear(self):
     self.deck = []
   
-  def request_draw(self, dealer:Dealer):
-    v1, _ = self.value()
-    if v1 < DEFAULTS.PLAY_TO:
-      card = dealer.draw()
-      if card:
-        self.deck.append(card)
+  def request_draw(self, dealer:Dealer, amt = 1):
+    drawn = False
+    for _ in range(amt):
+      v1, _ = self.value()
+      if v1 < C.DEFAULTS.PLAY_TO:
+        card = dealer.draw()
+        if card:
+          self.deck.append(card)
+          drawn = True
+    return drawn
   
   def evaluate(self):
     v1, v2 = self.value()
-    if v1 == DEFAULTS.PLAY_TO or v2 == DEFAULTS.PLAY_TO:
-      return DEFAULTS.PLAY_TO
-    elif v2 < DEFAULTS.PLAY_TO:
+    if v1 == C.DEFAULTS.PLAY_TO or v2 == C.DEFAULTS.PLAY_TO:
+      return C.DEFAULTS.PLAY_TO
+    elif v2 < C.DEFAULTS.PLAY_TO:
       return v2 
     return v1
+  
 
-  def value(self):
+  def value(self, val = 0):
     val, i_val = 0, 0
-    for card in self.deck:
+    for card in self.deck[val:]:
       Cv = card['value']
       if Cv == 1:
         val   += 1

@@ -1,4 +1,4 @@
-import pygame
+import pygame 
 from services import interpolation, tween, game_manager
 from configs import game_ui, bots
 from configs.constants import *
@@ -24,6 +24,8 @@ class App:
     self.manager = game_manager.Manager()
     self.Gui     = game_ui.GuiManager()
     self.tween   = tween.TweenSys()
+
+    self.manager.new()
 
 
   def initialize(self):
@@ -57,7 +59,7 @@ class App:
     self.mouse_pos = pygame.mouse.get_pos()
     self.Gui.input(self.mouse_pos, clicked, self.tick_cycle)
     if (not self.Gui.BindYeild):
-      self.manager.binds(events, self.LocalTime, self.mouse_pos, clicked)
+      self.manager.binds(self.LocalTime, events, self.mouse_pos, clicked)
 
   # run 2 #
   def update(self):
