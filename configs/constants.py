@@ -5,14 +5,14 @@ from configs.bots import BM
 SECOND_INCREMENT = 30
 
 # window settings
-SCREEN_SIZE = (800, 600)
+SCREEN_SIZE = (1200, 900)
 FRAME_RATE  = 60
 APP_NAME    = 'BlackJack'
 
 
 # camera settings
 SCROLL_AMT       = 67
-SHAKE_STRENGTH   = 1.3
+SHAKE_STRENGTH   = 1
 
 
 # binding
@@ -28,6 +28,7 @@ STARTING_CARDS = 2
 #
 ENTITY_PAUSE_TIME  = 4
 STAY_STREAK_TO_END = 3
+MATCH_DELAY_TIME   = 3
 
 # cards
 CARDS        = ['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Jack','Queen','King']
@@ -47,7 +48,6 @@ class GAME_RESULTS(Enum):
 
 class DECISION(Enum):
   STAY, DRAW = 0, 1
-
 
 class DEFAULTS(): # default match settings
   TIMER   = 90   # 1m30s

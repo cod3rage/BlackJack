@@ -47,7 +47,6 @@ class Dealer:
 
   def reset(self):
     self.deck = []
-    print(C.CARD_LEN)
     for shape in range(C.SHAPE_LEN):
       for card in range(C.CARD_LEN):
         self.add_card(shape, card)
@@ -87,9 +86,9 @@ class Deck:
     return v1
   
 
-  def value(self, val = 0):
+  def value(self, a = 0):
     val, i_val = 0, 0
-    for card in self.deck[val:]:
+    for card in self.deck[a:]:
       Cv = card['value']
       if Cv == 1:
         val   += 1

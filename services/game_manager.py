@@ -14,10 +14,12 @@ class Manager():
   plr_lives = 3
   time      = 180 # in seconds
 
-  entity_pause = ENTITY_PAUSE_TIME
-  stay_streak  = 0
+  entity_pause  = ENTITY_PAUSE_TIME
+  entity_health = 3
+  stay_streak   = 0
   
   click_times  = [-5,-5]
+  delay = MATCH_DELAY_TIME
 
   config = DEFAULTS()
 
@@ -27,19 +29,24 @@ class Manager():
     self.plr_lives = self.config.LIVES
     self.time      = self.config.TIMER
     #
+    self.entity_lives = self.config.LIVES
+    self.plr_turn = False
+    #
+    self.reset_match()
+
+  def reset_match(self):
     self.dealer.reset()
     self.player.clear()
     self.player.request_draw(self.dealer, STARTING_CARDS)
     self.entity.clear()
     self.entity.request_draw(self.dealer, STARTING_CARDS)
     #
-    # self.increment(mode = 3)
-    #
-    self.plr_turn = False
-
+    self.delay = MATCH_DELAY_TIME
+    self.entity_pause = 0
+    self.stay_streak  = 0
   # --
   def binds(self, localTime = 0, events=None, mouse_pos=(0,0), lmb_click=False):
-    if not self.plr_turn: return
+    if not self.plr_turn or not self.running: return
     rmb_click = False
 
     for event in events:
@@ -69,7 +76,13 @@ class Manager():
 
   # --
   def update(self, tick = 0, localTime = 0):
-    if self.plr_turn:
+    if not self.running:
+      return
+    elif self.delay > 0:
+      self.delay -= tick
+    elif self.plr_turn:
+      if self.stay_streak >= STAY_STREAK_TO_END:
+        return self.match_ended()
       self.time -= tick
       print(self.player.value())
     else:
@@ -106,7 +119,27 @@ class Manager():
     self.config()
   
   # --
-  def game_ended():
-    pass
+  def match_ended(self):
+    results = self.dealer.compare(
+      self.player.evaluate(), 
+      self.entity.evaluate()
+    )
+
+    if results == GAME_RESULTS.WIN:
+      self.entity_lives -= 1
+      self.plr_turn = True
+      print('WON')
+    elif results == GAME_RESULTS.LOSE:
+      self.plr_lives -= 1
+      self.plr_turn = False
+      print('LOST')
+    else:
+      print('TIE')
+      self.plr_turn = False
+
+    print(f'{self.config.LIVES - self.entity_lives} : {self.config.LIVES - self.plr_lives}\n{self.player.evaluate()} | {self.entity.evaluate()}')
+
+    self.reset_match()
+
 
   

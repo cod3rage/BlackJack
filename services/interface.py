@@ -168,7 +168,24 @@ class ImageLabel(UIObj):
   def __init__(self, name=None, parent=None, file_Arg = ''):
     super().__init__(name, parent)
     self.surface = py.image.load(file_Arg)
+    self.img = self.surface
+    #
+    self.scale    = 1
+    self.rotation = 0
+    self.alpha    = 255
+    #
+    self.centerX = False
+    self.centerY = False
+    #
+    self()
 
   def render(self, surface:py.surface):
     surface.blit(self.surface, self.render_pos)
     super().render(surface)
+  
+  def __call__(self, *args):
+    if args:
+      return super().__call__(args)
+    self.img = py.transform.rotate(py.transform.scale_by(self.surface, self.scale), self.rotation)
+    self.img.set_alpha(self.alpha)
+    self.size = self.img.get_size()

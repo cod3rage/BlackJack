@@ -25,8 +25,6 @@ class App:
     self.Gui     = game_ui.GuiManager()
     self.tween   = tween.TweenSys()
 
-    self.manager.new()
-
 
   def initialize(self):
     pygame.init()
