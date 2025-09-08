@@ -1,6 +1,6 @@
 import pygame 
 from services import interpolation, tween, game_manager
-from configs import game_ui, bots
+from configs import game_ui
 from configs.constants import *
 
 class App:

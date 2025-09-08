@@ -12,7 +12,7 @@ def card_vector(shape = 0, card = 0):
     'shape_name': shp,
     'value'     : min(card + 1, 10),
     'name'      : f'{crd} of {shp}s',
-    'file'      : f'{crd.lower()}_of_{shp.lower()}s.png'
+    'file'      : f'{crd.lower()}_of_{shp.lower()}s.png',
   }
 
 
