@@ -61,6 +61,7 @@ class DEFAULTS(): # default match settings
   TIMER_SEL  = [90, 120, 150, 180, 30, 60]
   # sets default
   LIVES_INC = MODE_INC = PLAYTO_INC = TIMER_INC = 0
+  ARG_POS   = ('LIVES','MODE','TIMER','PLAY_TO')
   # update call
   def __call__(self):
     self.LIVES   = self.LIVES_SEL[self.LIVES_INC]

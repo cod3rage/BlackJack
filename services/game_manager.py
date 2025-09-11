@@ -105,7 +105,7 @@ class Manager():
   # --
   def increment(self, lives:int = None, mode:int = None, timer:int = None, playto:int = None):
     if lives:
-      self.config.LIVES_INC = ( round(abs(lives)) if type(lives) == int else (self.config.LIVES_INC+ 1) 
+      self.config.LIVES_INC = ( round(abs(lives)) if type(lives) == int else (self.config.LIVES_INC + 1) 
       ) % len(self.config.LIVES_SEL)
     if mode:
       self.config.MODE_INC = (((round(abs(mode))) if True else (1)) + self.config.MODE_INC) % len(BM.__modes__)

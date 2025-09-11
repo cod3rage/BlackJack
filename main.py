@@ -22,8 +22,7 @@ class App:
 
     #pack managers
     self.manager = game_manager.Manager()
-    self.Gui     = game_ui.GuiManager()
-    self.tween   = tween.TweenSys()
+    self.Gui     = game_ui.GuiManager(self.manager)
 
 
   def initialize(self):
@@ -55,7 +54,7 @@ class App:
         clicked = True
     #
     self.mouse_pos = pygame.mouse.get_pos()
-    self.Gui.input(self.mouse_pos, clicked, self.tick_cycle)
+    self.Gui.input(self.mouse_pos, clicked, self.tick_cycle, self.deltaTime)
     if (not self.Gui.BindYeild):
       self.manager.binds(self.LocalTime, events, self.mouse_pos, clicked)
 
@@ -68,8 +67,7 @@ class App:
       *self.scroll,
       self.deltaTime
     )
-    # -
-    self.tween.update(self.deltaTime)
+
     # -
     self.Gui.update( 
       self.deltaTime, 
@@ -92,4 +90,4 @@ class App:
 
 if __name__ == '__main__':
   Blackjack = App()
-  Blackjack . run()
+  Blackjack.run()

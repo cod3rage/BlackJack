@@ -9,8 +9,12 @@ class TweenSys:
     for index in props:
       if not hasattr(obj, index): continue
       end, start = props[index], getattr(obj, index)
-      if isinstance(end, (list, tuple, int, float)) and type(end) == type(start):
+      if (isinstance(end, (list, tuple)) and isinstance(start, (list, tuple))) or (isinstance(end, (int, float)) and isinstance(start, (int, float))):
+        if start == end: continue
         change_vector[index] = (start, end)
+
+    if len(change_vector) == 0:
+      return
 
     tween_object = {
       'anim'   : interpolation, # animation type include start, end and time
@@ -19,6 +23,14 @@ class TweenSys:
       'length' : max(time, 0.01), # total length of time
       'watch'  : 0,         # time tracker
     }
+
+    cache = []
+
+    for i, v in enumerate(self.anims):
+      if v['obj'] is obj:
+        cache.append(i)
+
+    self.anims = [item for index , item in enumerate(self.anims) if not (index in cache)]
 
     self.anims.append(tween_object)
     return tween_object
