@@ -41,7 +41,6 @@ class App:
       self.deltaTime  =  self.clock.tick(FRAME_RATE) / 1000
       self.LocalTime  += self.deltaTime
       self.tick_cycle += 1
-
   # Main Functions #
 
   def binds(self):
@@ -80,7 +79,6 @@ class App:
   def render(self):
     self.screen.fill((0,0,0))
     self.Gui.render(self.screen)
-    pygame.draw.circle(self.screen, (255,0,0), (HALF_X, HALF_Y), 2)
   
   # quit func #
   def exit(self):

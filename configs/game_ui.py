@@ -10,7 +10,7 @@ class PlayBttn(Ui.UIObj):
     self.visible  = False
     self.color = (255,255,255)
     self.size = (160,40)
-    self.position = (HALF_X, SCREEN_Y - 120)
+    self.position = (HALF_X, SCREEN_Y - 50)
     self.catch  = True
     self.anchor = (.5,.5)
 

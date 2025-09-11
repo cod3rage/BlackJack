@@ -74,13 +74,17 @@ class UIObj():
 
 
   #-------------
-  def update(self, tick = 0, localTime = 0, render_pos = (0,0), *other):
+  def update(self, tick = 0, localTime = 0, render_pos = (0,0), cycle = 0):
     self.pre_update__()
     self.render_pos = (
       render_pos[0] + self.position[0] - self.size[0] * self.anchor[0],
       render_pos[1] + self.position[1] - self.size[1] * self.anchor[1]
     )
-    self.loop('update', tick, localTime, self.render_pos, *other)
+    self.loop('update', tick, localTime, self.render_pos, cycle)
+    if self.caught and self.last_catch < cycle - 2:
+        self.caught = False
+        self.input_left(tick, localTime, cycle)
+    
 
 
   #-------------
@@ -104,10 +108,8 @@ class UIObj():
           self.caught = True
           self.input_first(pos, clicked, cycle, *other)
         self.input_caught(pos, clicked, cycle, *other)
+        self.last_catch = cycle
         return True
-      elif self.caught:
-        self.caught = False
-        self.input_left(pos, clicked, cycle, *other)
 
       
 
