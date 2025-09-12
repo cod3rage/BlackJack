@@ -45,15 +45,10 @@ class Manager():
     self.entity_pause = 0
     self.stay_streak  = 0
   # --
-  def binds(self, localTime = 0, events=None, mouse_pos=(0,0), lmb_click=False):
+  def binds(self, localTime = 0, mouse_pos=(0,0), lmb=False, rmb = False):
     if not self.plr_turn or not self.running: return
-    rmb_click = False
-
-    for event in events:
-      if event.type == pygame.MOUSEBUTTONUP and event.button == 3:
-        rmb_click = True
     #
-    if lmb_click:
+    if lmb:
       if localTime - self.click_times[0] <= DOUBLE_CLICK:
         self.plr_turn = False
         self.click_times[0] = -5
@@ -65,7 +60,7 @@ class Manager():
       else:
         self.click_times[0] = localTime
 
-    elif rmb_click: 
+    elif rmb: 
       if localTime - self.click_times[1] <= DOUBLE_CLICK:
         self.click_times[1] = -5
         self.plr_turn = False

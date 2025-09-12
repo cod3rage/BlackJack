@@ -41,6 +41,10 @@ MINIMAL_TICK_INTERVAL = 1 / (FRAME_RATE * 2)
 # 
 CARD_LEN, SHAPE_LEN = len(CARDS), len(SHAPES)
 
+# Promts
+STAY_PROMPTS = ['Stay?', 'No more?', 'Locking', 'You Sure?', 'Thats it?']
+DRAW_PROMPTS = ['Draw?', 'Risky', 'Go for it', 'You Sure?', '1 more?']
+
 
 # enums
 class GAME_RESULTS(Enum):

@@ -44,18 +44,25 @@ class App:
   # Main Functions #
 
   def binds(self):
-    clicked, events = False, pygame.event.get()
+    lmb, rmb, events = False, False, pygame.event.get()
     #
     for event in events:
       if event.type == pygame.QUIT:
         return True
-      if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-        clicked = True
+      if event.type == pygame.MOUSEBUTTONUP:
+        if event.button == 1:
+          lmb = True
+        elif event.button == 3:
+          rmb = True
     #
     self.mouse_pos = pygame.mouse.get_pos()
-    self.Gui.input(self.mouse_pos, clicked, self.tick_cycle, self.deltaTime)
+    self.Gui.input(self.mouse_pos, lmb, self.tick_cycle, self.deltaTime)
     if (not self.Gui.BindYeild):
-      self.manager.binds(self.LocalTime, events, self.mouse_pos, clicked)
+      self.manager.binds(self.LocalTime, self.mouse_pos, lmb, rmb)
+      if lmb or rmb:
+        self.Gui.clickEffoc.Clicked(self.mouse_pos, DRAW_PROMPTS if lmb else STAY_PROMPTS)
+      
+  
 
   # run 2 #
   def update(self):

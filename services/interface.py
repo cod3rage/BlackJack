@@ -49,7 +49,7 @@ class UIObj():
   
   def pre_render__(self):
     self.scale    = abs(self.scale)
-    self.rotation = abs(self.rotation) % 360
+    self.rotation = self.rotation % 360
     self.alpha    = min(abs(self.alpha), 255)
     #
     self.surface = py.surface.Surface(self.size)
@@ -90,7 +90,7 @@ class UIObj():
   #-------------
   def render(self, surface):
     if not surface: return
-    if self.visible:
+    if self.visible or self.alpha <= 0:
       self.__render__(surface)
     self.loop('render', surface)
   
@@ -98,7 +98,8 @@ class UIObj():
   #-------------
   def input(self, pos = (0,0), clicked = None, cycle = 0, *other):
     if cycle < 10: return 
-    if self.loop('input', pos, clicked, cycle, *other): return True
+    if self.loop('input', pos, clicked, cycle, *other): 
+      return True
     #
     if (self.catch):
       if ( self.render_pos[0] <= pos[0] < self.render_pos[0] + self.size[0] and 
@@ -122,7 +123,7 @@ class UIObj():
       if hasattr(item, call):
         att = getattr(item, call)
         if callable(att):
-          return_statement = att(*values)
+          return_statement = att(*values) or return_statement
     return return_statement
 
 
@@ -160,7 +161,7 @@ class Image(UIObj):
   
   def pre_render__(self):
     self.scale    = abs(self.scale)
-    self.rotation = abs(self.rotation) % 360
+    self.rotation = self.rotation % 360
     self.alpha    = min(abs(self.alpha), 255)
     #
     self.surface = py.transform.scale_by(self.img, self.scale)
@@ -189,7 +190,7 @@ class Text(UIObj):
 
   def pre_render__(self):
     self.scale    = abs(self.scale)
-    self.rotation = abs(self.rotation) % 360
+    self.rotation = self.rotation % 360
     self.alpha    = min(abs(self.alpha), 255)
     #
     self.surface  = self.font.render(self.text, self.antialias,self.color, self.background)
