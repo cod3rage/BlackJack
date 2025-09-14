@@ -1,4 +1,5 @@
 import pygame 
+import sys
 from services import interpolation, tween, game_manager
 from configs import game_ui
 from configs.constants import *
@@ -58,8 +59,8 @@ class App:
     self.mouse_pos = pygame.mouse.get_pos()
     self.Gui.input(self.mouse_pos, lmb, self.tick_cycle, self.deltaTime)
     if (not self.Gui.BindYeild):
-      self.manager.binds(self.LocalTime, self.mouse_pos, lmb, rmb)
-      if lmb or rmb:
+      valid_bind = self.manager.binds(self.LocalTime, self.mouse_pos, lmb, rmb)
+      if (lmb or rmb) and valid_bind:
         self.Gui.clickEffoc.Clicked(self.mouse_pos, DRAW_PROMPTS if lmb else STAY_PROMPTS)
       
   
@@ -90,6 +91,8 @@ class App:
   # quit func #
   def exit(self):
     pygame.quit()
+    pygame.font.quit()
+    sys.exit()
 #
 
 

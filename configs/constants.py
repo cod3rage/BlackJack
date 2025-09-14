@@ -20,14 +20,13 @@ DOUBLE_CLICK = 0.4 # seconds for double click
 
 # game settings
 MAX_TIMER_LENGTH = 240
-MAX_LIVES   = 5
 MAX_PLAY_TO = 27
 MIN_PLAY_TO = 17
 #
 STARTING_CARDS = 2
 #
 ENTITY_PAUSE_TIME  = 4
-STAY_STREAK_TO_END = 3
+STAY_STREAK_TO_END = 2
 MATCH_DELAY_TIME   = 3
 
 # cards
@@ -60,6 +59,7 @@ class DEFAULTS(): # default match settings
   MODE    = BM.NORMAL # int 0
   ENTITY_PAUSE = ENTITY_PAUSE_TIME
   # Incremented selections
+  MODE_NAME = 'Normal'
   PLAYTO_SEL = [21, 17, 24, 27]
   LIVES_SEL  = [3, 4, 5, 1, 2]
   TIMER_SEL  = [90, 120, 150, 180, 30, 60]
@@ -70,6 +70,7 @@ class DEFAULTS(): # default match settings
   def __call__(self):
     self.LIVES   = self.LIVES_SEL[self.LIVES_INC]
     self.MODE    = BM.__modes__[self.MODE_INC]
+    self.MODE_NAME = self.MODE.__name__[:1].upper() + self.MODE.__name__[1:]
     self.PLAY_TO = self.PLAYTO_SEL[self.PLAYTO_INC]
     self.TIMER   = self.TIMER_SEL[self.TIMER_INC]
     #

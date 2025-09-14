@@ -5,6 +5,7 @@ from configs.constants import *
 
 class Manager():
   running = False
+  resetting = False
 
   player  = deck.Deck()
   dealer  = deck.Dealer()
@@ -41,6 +42,7 @@ class Manager():
     self.entity.clear()
     self.entity.request_draw(self.dealer, STARTING_CARDS)
     #
+    self.resetting = True
     self.delay = MATCH_DELAY_TIME
     self.entity_pause = 0
     self.stay_streak  = 0
@@ -69,12 +71,16 @@ class Manager():
       else:
         self.click_times[1] = localTime
 
+    return True
+
   # --
-  def update(self, tick = 0, localTime = 0):
+  def update(self, tick = 0, *_):
     if not self.running:
       return
     elif self.delay > 0:
       self.delay -= tick
+      if (self.resetting and self.delay < 0):
+        self.resetting = False
     elif self.plr_turn:
       if self.stay_streak >= STAY_STREAK_TO_END:
         return self.match_ended()
@@ -84,14 +90,16 @@ class Manager():
       if self.entity_pause == 0:
         choice = self.config.MODE(self.entity, self.player) # runs algorithm
         if choice == DECISION.DRAW:
-          self.entity.request_draw(self.dealer)
+          if not self.entity.request_draw(self.dealer):
+            self.stay_streak += 1
         else: # defaults to stay
           self.stay_streak += 1
-        print(self.entity.value(1))
       # --
       elif self.entity_pause + tick >= self.config.ENTITY_PAUSE:
         self.plr_turn = True
         self.entity_pause = 0
+        if self.stay_streak >= STAY_STREAK_TO_END:
+          self.match_ended()
       # --
       self.entity_pause += max(MINIMAL_TICK_INTERVAL, tick)
       # ^ ensures entity goes once ^
