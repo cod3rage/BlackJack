@@ -4,25 +4,26 @@ from configs.bots import BM
 from configs.constants import *
 
 class Manager():
-  running = False
-  resetting = False
+  running   = False
+  queue_end = False
 
-  player  = deck.Deck()
-  dealer  = deck.Dealer()
-  entity  = deck.Deck()
+  config = DEFAULTS()
+
+  player  = deck.Deck(config)
+  entity  = deck.Deck(config)
+  dealer  = deck.Dealer(config)
 
   plr_turn  = False
   plr_lives = 3
   time      = 180 # in seconds
 
   entity_pause  = ENTITY_PAUSE_TIME
-  entity_health = 3
+  entity_drew   = False
+  entity_lives  = plr_lives
   stay_streak   = 0
   
   click_times  = [-5,-5]
   delay = MATCH_DELAY_TIME
-
-  config = DEFAULTS()
 
   def new(self):
     self.config() # update
@@ -32,23 +33,25 @@ class Manager():
     #
     self.entity_lives = self.config.LIVES
     self.plr_turn = False
+    self.queue_end = False
     #
     self.reset_match()
 
   def reset_match(self):
     self.dealer.reset()
+    
     self.player.clear()
     self.player.request_draw(self.dealer, STARTING_CARDS)
     self.entity.clear()
     self.entity.request_draw(self.dealer, STARTING_CARDS)
     #
-    self.resetting = True
     self.delay = MATCH_DELAY_TIME
     self.entity_pause = 0
     self.stay_streak  = 0
+    self.entity_drew = False
   # --
   def binds(self, localTime = 0, mouse_pos=(0,0), lmb=False, rmb = False):
-    if not self.plr_turn or not self.running: return
+    if not self.plr_turn or not self.running or self.delay > 0: return
     #
     if lmb:
       if localTime - self.click_times[0] <= DOUBLE_CLICK:
@@ -70,7 +73,6 @@ class Manager():
         self.entity_pause = 0 
       else:
         self.click_times[1] = localTime
-
     return True
 
   # --
@@ -79,24 +81,28 @@ class Manager():
       return
     elif self.delay > 0:
       self.delay -= tick
-      if (self.resetting and self.delay < 0):
-        self.resetting = False
+      if self.queue_end and self.delay <= 0:
+        self.running = False
+        return
     elif self.plr_turn:
       if self.stay_streak >= STAY_STREAK_TO_END:
         return self.match_ended()
       self.time -= tick
-      print(self.player.value())
+      if self.time <= 0:
+        return self.end_game(GAME_RESULTS.LOSE)
     else:
-      if self.entity_pause == 0:
-        choice = self.config.MODE(self.entity, self.player) # runs algorithm
+      if self.entity_pause + tick >= (self.config.ENTITY_PAUSE * 0.5) > self.entity_pause:
+        choice = self.config.MODE(self.entity, self.player, self.config.PLAY_TO) # runs algorithm
         if choice == DECISION.DRAW:
           if not self.entity.request_draw(self.dealer):
             self.stay_streak += 1
         else: # defaults to stay
           self.stay_streak += 1
+        self.entity_drew = True
       # --
       elif self.entity_pause + tick >= self.config.ENTITY_PAUSE:
         self.plr_turn = True
+        self.entity_drew = False
         self.entity_pause = 0
         if self.stay_streak >= STAY_STREAK_TO_END:
           self.match_ended()
@@ -131,18 +137,22 @@ class Manager():
     if results == GAME_RESULTS.WIN:
       self.entity_lives -= 1
       self.plr_turn = True
-      print('WON')
     elif results == GAME_RESULTS.LOSE:
       self.plr_lives -= 1
       self.plr_turn = False
-      print('LOST')
     else:
-      print('TIE')
       self.plr_turn = False
 
-    print(f'{self.config.LIVES - self.entity_lives} : {self.config.LIVES - self.plr_lives}\n{self.player.evaluate()} | {self.entity.evaluate()}')
+    if self.plr_lives <= 0:
+      return self.end_game(GAME_RESULTS.LOSE)
+    elif self.entity_lives <= 0:
+      return self.end_game(GAME_RESULTS.WIN)
+
 
     self.reset_match()
 
+  def end_game(self, match:GAME_RESULTS):
+    self.queue_end = True
+    self.delay = MATCH_DELAY_TIME
 
   

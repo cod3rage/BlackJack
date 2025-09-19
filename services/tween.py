@@ -3,7 +3,7 @@ from services.interpolation import *
 class TweenSys:
   anims = []
   #
-  def new(self, obj:object, props:dict, time = 0, interpolation = linear):
+  def new(self, obj:object, props:dict, time = 0, interpolation = linear, func:callable = None):
     change_vector = {}
     all_equal = 0
 
@@ -36,6 +36,7 @@ class TweenSys:
       'obj'    : obj,       # reference
       'length' : max(time, 0.01), # total length of time
       'watch'  : 0,         # time tracker
+      'phonk'  : func
     }
 
     
@@ -56,8 +57,7 @@ class TweenSys:
       tween['watch'] += tick
       scale  = min(watch/length, 1)
 
-      if scale == 1:
-        cache.append(i)
+      
 
       for prop in vecs:
         start, end = vecs[prop]
@@ -71,6 +71,11 @@ class TweenSys:
             final = tuple(final)
           setattr(obj, prop, final)
         obj()
+
+      if scale == 1:
+        cache.append(i)
+        if callable(tween['phonk']):
+          tween['phonk']()
 
     self.anims = [item for index , item in enumerate(self.anims) if not (index in cache)]
   #

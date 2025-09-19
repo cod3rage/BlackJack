@@ -26,6 +26,7 @@ class GuiManager():
   BindYeild  = False
   # listeners
   PlayCaught  = False
+  Drew_check  = False
   PlrTurn     = True
   DelayCaught = False
   LifeCounter = [0,0]
@@ -58,11 +59,13 @@ class GuiManager():
     #
     self.rmb = self.BindsSect.new(SettingsBttn, 'RMB', None,'assets/UI/Rmb_icon.png')
     self.rmb.suffix = 'Stay'
+    self.rmb.catch  = False
     self.rmb.IconFirst = False
     self.rmb.position = (0,0)
     self.rmb.anchor = (1,0)
     self.lmb = self.BindsSect.new(SettingsBttn, 'LMB', None,'assets/UI/Lmb_icon.png')
     self.lmb.suffix = 'Draw'
+    self.lmb.catch  = False
     self.lmb.IconFirst = False
     self.lmb.position = (0, 24)
     self.lmb.anchor = (1,0)
@@ -72,19 +75,29 @@ class GuiManager():
     self.keep_ingame = [self.lmb, self.rmb, self.playto, self.mode]
     #
     self.status_bar = self.UiMain.new(TopPart,'Status_Bar')
-
-    # ------- fake 3d ------- #
-
-    # ------- fake 3d ------- #
+    self.plr_hand   = self.UiMain.new(Hand, 'Player_hand', .9)
+    self.plr_hand.position = (HALF_X, SCREEN_Y - 120)
+    self.plr_hand.enabled = False
+    self.ent_hand   = self.UiMain.new(Hand, 'Entity_hand', .8, 1)
+    self.ent_hand.hidden_amt = 1
+    self.ent_hand.position = (HALF_X, HALF_Y)
+    self.ent_hand.ang = -self.ent_hand.ang
+    self.ent_hand.enabled = False
 
   def set_playing(self):
     self.LifeCounter = [self.config.LIVES,self.config.LIVES]
+    
     #
     for item in self.keep_ingame:
       tws.new(item, {'alpha':0}, .3)
       tws.new(item.text, {'alpha':200}, .3)
       tws.new(item.icon, {'alpha':200}, .3)
       item.static = True
+    #
+    self.ent_hand.enabled = True
+    self.plr_hand.enabled = True
+    tws.new(self.ent_hand, {'position':(HALF_X, HALF_Y)},.2)
+    tws.new(self.plr_hand, {'position':(HALF_X, SCREEN_Y - 120)}, .2)
     #
     tws.new(self.lives, {'alpha':0}, .2)
     tws.new(self.lives.text, {'alpha':0}, .2)
@@ -97,11 +110,84 @@ class GuiManager():
     tws.new(self.SttgsSect, {'position':(50, SCREEN_Y - 104)}, 0.6)
     #
     self.status_bar.new_game(self.config.LIVES, self.config.MODE_NAME)
-
     
   #
   def set_not_playing(self):
-    pass
+    for i in self.ent_hand.children:
+      tws.new(i, {'alpha': 0}, .3)
+    tws.new(self.ent_hand, 
+      {'position':(HALF_X, HALF_Y - 20)}, 
+      0.3, tween.linear, self.ent_hand.reset
+    )
+    #
+    for i in self.plr_hand.children:
+      tws.new(i, {'alpha': 0}, .3)
+    tws.new(
+      self.plr_hand, 
+      {'position':(HALF_X, SCREEN_Y - 60)}, 
+      0.3, tween.linear, self.plr_hand.reset
+    )
+    #
+    self.playbttn.input_left()
+    #
+    for item in self.keep_ingame:
+      tws.new(item, {'alpha':0}, .3)
+      tws.new(item.text, {'alpha':255}, .3)
+      tws.new(item.icon, {'alpha':255}, .3)
+      item.static = not item.catch
+    #
+    tws.new(self.lives, {'alpha':0}, .2)
+    tws.new(self.lives.text, {'alpha':255}, .2)
+    tws.new(self.lives.icon, {'alpha':255}, .2)
+    self.lives.static = False
+    tws.new(self.timer.text, {'alpha':255}, .2)
+    tws.new(self.timer.icon, {'alpha':255}, .2)
+    tws.new(self.timer, {'alpha':0}, .2)
+    self.timer.static = False
+    #
+    tws.new(self.SttgsSect, {'position':(50, SCREEN_Y - 144)}, 0.6)
+    #
+    self.status_bar.end_game()
+  #
+  def event_detect(self):
+    #
+    if self.PlayCaught and self.manager.running:
+      if self.LifeCounter[0] > self.manager.plr_lives:
+        self.LifeCounter[0]  = self.manager.plr_lives
+        self.status_bar.heart_break(plr = True)
+      if self.LifeCounter[1] > self.manager.entity_lives:
+        self.LifeCounter[1]  = self.manager.entity_lives
+        self.status_bar.heart_break(plr = False)
+    #
+    if self.manager.delay <= 0:
+      self.DelayCaught = False
+      
+      if self.manager.plr_turn and not self.PlrTurn:
+        self.status_bar.player_side.activate()
+        self.status_bar.entity_side.deactivate()
+        self.PlrTurn = True
+      elif not self.manager.plr_turn and self.PlrTurn:
+        self.plr_hand.deck_upd(self.manager.player.deck)
+        self.ent_hand.deck_upd(self.manager.entity.deck)
+        self.status_bar.player_side.deactivate()
+        self.status_bar.entity_side.activate()
+        self.PlrTurn = False
+    elif self.manager.delay > 0 and not self.DelayCaught:
+      self.PlrTurn = not self.manager.plr_turn
+      self.plr_hand.reset()
+      self.ent_hand.reset()
+      self.status_bar.player_side.deactivate()
+      self.status_bar.entity_side.deactivate()
+      self.DelayCaught = True
+    if self.manager.entity_drew and not self.Drew_check:
+      self.plr_hand.deck_upd(self.manager.player.deck)
+      self.ent_hand.deck_upd(self.manager.entity.deck)
+      self.Drew_check = True
+    elif not self.manager.entity_drew and self.Drew_check:
+      self.plr_hand.deck_upd(self.manager.player.deck)
+      self.ent_hand.deck_upd(self.manager.entity.deck)
+      self.Drew_check = False
+
   #
   def update(self, tick = 0, localTime = 0, scroll = (0,0), tick_cycle = 0):
     tws.update(tick)
@@ -115,29 +201,8 @@ class GuiManager():
       self.PlayCaught = False
       self.set_not_playing()
     #
-    if self.PlayCaught and self.manager.running:
-      if self.LifeCounter[0] > self.manager.plr_lives:
-        self.LifeCounter[0]  = self.manager.plr_lives
-        self.status_bar.heart_break(plr = True)
-      if self.LifeCounter[1] > self.manager.entity_lives:
-        self.LifeCounter[1]  = self.manager.entity_lives
-        self.status_bar.heart_break(plr = False)
-    #
-    if self.manager.delay <= 0:
-      self.DelayCaught = False
-      if self.manager.plr_turn and not self.PlrTurn:
-        self.status_bar.player_side.activate()
-        self.status_bar.entity_side.deactivate()
-        self.PlrTurn = True
-      elif not self.manager.plr_turn and self.PlrTurn:
-        self.status_bar.player_side.deactivate()
-        self.status_bar.entity_side.activate()
-        self.PlrTurn = False
-    elif self.manager.delay > 0 and not self.DelayCaught:
-      self.PlrTurn = not self.manager.plr_turn
-      self.status_bar.player_side.deactivate()
-      self.status_bar.entity_side.deactivate()
-      self.DelayCaught = True
+    if self.manager.running:
+      self.event_detect()
     #
     self.UiMain.update(tick, localTime, scroll, tick_cycle)
     self.UiOverlay.update(tick, localTime, (0,0), tick_cycle)

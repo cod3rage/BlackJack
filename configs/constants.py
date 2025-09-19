@@ -30,7 +30,7 @@ STAY_STREAK_TO_END = 2
 MATCH_DELAY_TIME   = 3
 
 # cards
-CARDS        = ['Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Jack','Queen','King']
+CARDS        = ['Ace','2','3','4','5','6','7','8','9','10','Jack','Queen','King']
 SHAPES       = ['Spade','Heart','Club','Diamond']
 
 # dependent values
@@ -53,14 +53,14 @@ class DECISION(Enum):
   STAY, DRAW = 0, 1
 
 class DEFAULTS(): # default match settings
-  TIMER   = 90   # 1m30s
+  TIMER   = 90   # second intervals
   PLAY_TO = 21   # cards to play to
   LIVES   = 3    # 3 lives
   MODE    = BM.NORMAL # int 0
   ENTITY_PAUSE = ENTITY_PAUSE_TIME
   # Incremented selections
   MODE_NAME = 'Normal'
-  PLAYTO_SEL = [21, 17, 24, 27]
+  PLAYTO_SEL = [21, 24, 27, 17]
   LIVES_SEL  = [3, 4, 5, 1, 2]
   TIMER_SEL  = [90, 120, 150, 180, 30, 60]
   # sets default

@@ -16,10 +16,10 @@ def card_vector(shape = 0, card = 0):
   }
 
 
-
 class Dealer:
-  def __init__(self):
+  def __init__(self, config = None):
     self.deck  = []
+    self.config = config
   
   def shuffle(self):
     size = len(self.deck)
@@ -53,14 +53,15 @@ class Dealer:
     self.shuffle()
   
   def compare(self, main:int, opp:int):
-    if main == opp or (main > C.DEFAULTS.PLAY_TO and opp > C.DEFAULTS.PLAY_TO):
+    if main == opp or (main > self.config.PLAY_TO and opp > self.config.PLAY_TO):
       return C.GAME_RESULTS.TIE
-    elif (main > opp or opp > C.DEFAULTS.PLAY_TO) and main <= C.DEFAULTS.PLAY_TO:
+    elif (main > opp or opp > self.config.PLAY_TO) and main <= self.config.PLAY_TO:
       return C.GAME_RESULTS.WIN
     return C.GAME_RESULTS.LOSE
 
 class Deck:
-  def __init__(self):
+  def __init__(self, config = None):
+    self.config = config or C.DEFAULTS
     self.deck = []
 
   def clear(self):
@@ -69,8 +70,8 @@ class Deck:
   def request_draw(self, dealer:Dealer, amt = 1):
     drawn = False
     for _ in range(amt):
-      v1, _ = self.value()
-      if v1 < C.DEFAULTS.PLAY_TO:
+      v = self.evaluate()
+      if v < self.config.PLAY_TO:
         card = dealer.draw()
         if card:
           self.deck.append(card)
@@ -78,22 +79,24 @@ class Deck:
     return drawn
   
   def evaluate(self):
-    v1, v2 = self.value()
-    if v1 == C.DEFAULTS.PLAY_TO or v2 == C.DEFAULTS.PLAY_TO:
-      return C.DEFAULTS.PLAY_TO
-    elif v2 < C.DEFAULTS.PLAY_TO:
-      return v2 
-    return v1
+    vals = self.value()
+    closest = vals[0]
+    for i in vals[1:]:
+      if closest < i <= self.config.PLAY_TO:
+        closest = i
+    return closest
   
 
-  def value(self, a = 0):
-    val, i_val = 0, 0
-    for card in self.deck[a:]:
-      Cv = card['value']
-      if Cv == 1:
-        val   += 1
-        i_val += 11
-        continue
-      val, i_val = val+Cv, i_val+Cv 
-    return val, i_val # possiblities
+  def value(self):
+    options = [0]
+    for card in self.deck:
+      size = len(options)
+      for i in range(size):
+        options[i] += max(1,card['value'])
+      if card['card'] == 0:
+        options *= 2
+        for i in range(size, size * 2):
+          options[i] += 11
+      
+    return tuple(options) # possiblities
 

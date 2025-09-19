@@ -48,7 +48,13 @@ class UserTab(Ui.UIObj):
       )
       super().pre_render__()
       
-      
+    def unset(self):
+      for i in self.hearts:
+        if i.enabled:
+          tws.new(i.heart, {'alpha':0}, 0.3)
+          tws.new(i.outline, {'alpha':0}, 0.3)
+      tws.new(self.title, {'alpha':0}, 0.3)
+
     
     def reset(self, hearts = 3, title = None):
       self.title = title or self.title
@@ -64,12 +70,12 @@ class UserTab(Ui.UIObj):
       for heart in self.hearts:
         heart.enabled = local_i < hearts
         heart.position = (local_i * self.spacing + self.heart_size[0] * local_i + right_offset, self.top_title.size[1] + 5)
-        if not self.lean_left:
-          heart.anchor = (0,0)
         local_i += 1
         #
         if heart.enabled:
           heart.heart.alpha = 0
+          heart.heart.scale = 1
+          heart.heart.color = (255,255,255)
           heart.heart()
           tws.new(heart.heart, {'alpha':255}, MATCH_DELAY_TIME)
         
@@ -118,7 +124,9 @@ class UserTab(Ui.UIObj):
       subject.outline.color = (255,255,255)
       subject.outline()
       subject.heart()
-      tws.new(subject.heart, {'alpha':0, 'scale':2, 'anchor':(.5,.5)}, .3)
+      tws.new(subject.heart, {'alpha':0, 'scale':2}, .3)
+
+    
 
 
 
@@ -166,6 +174,18 @@ class TopPart(Ui.UIObj):
     self.pre_render__()
 
   
+  def end_game(self):
+    #
+    self.entity_side.unset()
+    self.player_side.unset()
+    #
+    tws.new(self.timer, {'color':(0,0,0), 'alpha':0}, 0.35, tween.linear, self.unenable)
+
+
+
+  def unenable(self):
+    self.enabled = False
+
   def pre_render__(self):
     self.player_side()
     self.entity_side()
@@ -185,7 +205,7 @@ class TopPart(Ui.UIObj):
   
   def textile_update(self, time = 0):
     mins, secs = divmod(time, 60)
-    self.time.text = f'{floor(mins)}:{floor(secs)}' + ('0' if secs < 10 else '')
+    self.time.text = f'{floor(mins)}:{('0' if secs < 10 else '')}{floor(secs)}'
     self.timer.size = (self.time.size[0] + 12, self.time.size[1] + 12)
     self.time()
     self.timer()
@@ -247,7 +267,86 @@ class PlayBttn(Ui.UIObj):
       tws.new(self.bg_img, {'scale': 1.1,'alpha': 0}, 0.1)
       tws.new(self.stroke, {'scale': 1.1,'alpha': 0}, 0.1)
     
+# ----------------
 
+class Hand(Ui.UIObj):
+  def __init__(self, name='UIOBJECT', parent = None, scale = 1, hidden_cards = 0):
+    super().__init__(name, parent)
+    self.card_scale = scale
+    self.deck       = {}
+    self.last_deck  = []
+    self.visible = False
+    self.rot_inc = 12
+    self.crd_dists = 30
+    self.hidden_amt = hidden_cards
+    self.hiddens = []
+    self.ang = 10
+    self.anchor = (.5,.5)
+    self.avg_size = (0,0)
+    #
+    for i in range(hidden_cards):
+      card = self.new(Ui.Image, f'Hidden{i}', 'assets/Cards/back_of_card.png')
+      self.hiddens.append(card)
+      card.scale = scale
+
+  def new_undif(self, name, file):
+    card = self.new(Ui.Image, name, file)
+    self.deck[name] = card
+    card.alpha = 0
+    card.scale = self.card_scale
+    card.position = (0,0)
+    return card
+  
+  def re_add_crd(self, name):
+    card = self.deck[name]
+    if card not in self.children:
+      self.children.append(card)
+      card.alpha = 0
+    return card
+
+  def deck_upd(self, deck_data = [{}]):
+    inc = size = len(deck_data);
+    #
+    for child in self.hiddens:
+      inc -= 1
+      if not child in self.children:
+        self.children.append(child)
+        child.alpha = 0
+        child.scale = self.card_scale
+        child.position = (0,0)
+      tws.new(child, {
+      'alpha'   : 255,
+      'position': (self.crd_dists * (size - inc), 0)
+      }, 0.3)   
+    
+    self.deck_display_upd(self.hidden_amt, deck_data)
+    #
+    
+  def deck_display_upd(self, hide = 0, deck_data = None):
+    size = len(deck_data); inc = size-hide;
+    for data in deck_data[hide:]:
+      inc -= 1; card = None; 
+      if data['name'] in self.deck:
+        card = self.re_add_crd(data['name'])
+      else:
+        card = self.new_undif(data['name'], f'assets/Cards/{data['file']}')
+        self.children.append(card)
+      if not card: continue
+      card()
+      if self.avg_size == (0,0):
+        self.avg_size = card.size
+      tws.new(card, {
+      'alpha': 255, 
+      'position':(self.crd_dists * (size - inc), 0)
+      }, 0.3)
+    tws.new(self, {'size':(self.avg_size[0] + self.crd_dists * size, self.avg_size[1])}, 0.3)
+  #
+  def reset(self):
+    for i in self.children:
+      i.position = (0,0)
+    self.children = []
+
+    
 
 # ----------------
 
@@ -287,7 +386,7 @@ class SettingsBttn(Ui.UIObj):
 
   def pre_render__(self):
     val = ''
-    if not self.static:
+    if not self.static and self.manager:
       val = getattr(self.config, self.name)
       if callable(val): 
         val = self.config.MODE_NAME
